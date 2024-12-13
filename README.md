@@ -8,11 +8,3 @@
 
 ## Misc
 ![GitHub Release Date](https://img.shields.io/github/release-date-pre/RoStormCreations/RoStorm)
-<br>
-load the Library: Ensure the library script is stored in a location like ReplicatedStorage or included directly in your executor.
-Create a Window: 
-
-```lua
-Library:CreateWindow()
-```
-Add Components: Use Library:CreateButton() to add a button, supplying a callback function for the button's action
