@@ -12,7 +12,8 @@ Library.Theme = {
     ElementBackground = Color3.fromRGB(40, 40, 40),
     ElementHover = Color3.fromRGB(50, 50, 50),
     Text = Color3.fromRGB(255, 255, 255),
-    Accent = Color3.fromRGB(70, 130, 180)
+    Accent = Color3.fromRGB(70, 130, 180),
+    CloseButton = Color3.fromRGB(255, 100, 100)
 }
 
 function Library:CreateWindow(title)
@@ -45,11 +46,27 @@ function Library:CreateWindow(title)
     Title.Name = "Title"
     Title.Parent = Topbar
     Title.BackgroundTransparency = 1
-    Title.Size = UDim2.new(1, 0, 1, 0)
+    Title.Size = UDim2.new(1, -30, 1, 0)
+    Title.Position = UDim2.new(0, 0, 0, 0)
     Title.Font = Enum.Font.SourceSans
     Title.Text = title or "UI Library"
     Title.TextColor3 = Library.Theme.Text
     Title.TextSize = 18
+
+    local CloseButton = Instance.new("TextButton")
+    CloseButton.Name = "CloseButton"
+    CloseButton.Parent = Topbar
+    CloseButton.BackgroundColor3 = Library.Theme.CloseButton
+    CloseButton.Size = UDim2.new(0, 30, 0, 30)
+    CloseButton.Position = UDim2.new(1, -30, 0, 0)
+    CloseButton.Text = "X"
+    CloseButton.TextColor3 = Library.Theme.Text
+    CloseButton.TextSize = 18
+    CloseButton.Font = Enum.Font.SourceSans
+
+    CloseButton.MouseButton1Click:Connect(function()
+        ScreenGui:Destroy()
+    end)
 
     -- Enable dragging for the window
     local dragging, dragInput, dragStart, startPos
