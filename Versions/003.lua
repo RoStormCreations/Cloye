@@ -4,21 +4,105 @@ local Library = {}
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
--- Variables
+-- Theme Variables (Neumorphism)
 Library.Theme = {
-    Background = Color3.fromRGB(30, 30, 30), -- Dark background
-    Topbar = Color3.fromRGB(40, 40, 40), -- Darker top bar for contrast
-    ElementBackground = Color3.fromRGB(45, 45, 45), -- Dark grey element background
-    ElementHover = Color3.fromRGB(60, 60, 60), -- Hover effect for elements
-    Text = Color3.fromRGB(255, 255, 255), -- White text
-    Accent = Color3.fromRGB(70, 130, 180), -- Blue accent color
-    CloseButton = Color3.fromRGB(255, 100, 100), -- Red close button
-    ButtonGradientStart = Color3.fromRGB(100, 100, 255), -- Button gradient start
-    ButtonGradientEnd = Color3.fromRGB(70, 130, 180), -- Button gradient end
-    ButtonShadow = Color3.fromRGB(0, 0, 0), -- Button shadow
-    ToggleOn = Color3.fromRGB(70, 130, 180), -- Accent color for toggled state
-    ToggleOff = Color3.fromRGB(100, 100, 100), -- Dimmed color for untoggled state
+    Background = Color3.fromRGB(235, 235, 235),
+    Topbar = Color3.fromRGB(250, 250, 250),
+    ElementBackground = Color3.fromRGB(240, 240, 240),
+    ElementShadow = Color3.fromRGB(180, 180, 180),
+    ElementHover = Color3.fromRGB(225, 225, 225),
+    Accent = Color3.fromRGB(100, 150, 255),
+    Text = Color3.fromRGB(40, 40, 40),
+    CloseButton = Color3.fromRGB(255, 100, 100),
+    ButtonGradientStart = Color3.fromRGB(100, 100, 255),
+    ButtonGradientEnd = Color3.fromRGB(70, 130, 180),
 }
+
+-- Neumorphism Button Creation
+function Library:CreateNeumorphicButton(parent, text, callback)
+    local Button = Instance.new("TextButton")
+    Button.Name = "Button"
+    Button.Parent = parent
+    Button.BackgroundColor3 = Library.Theme.ElementBackground
+    Button.Size = UDim2.new(1, -20, 0, 40)
+    Button.Position = UDim2.new(0, 10, 0, 10)
+    Button.Font = Enum.Font.SourceSans
+    Button.Text = text or "Button"
+    Button.TextColor3 = Library.Theme.Text
+    Button.TextSize = 16
+
+    -- Neumorphic inset shadow
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Parent = Button
+    UIStroke.Color = Library.Theme.ElementShadow
+    UIStroke.Thickness = 4
+    UIStroke.Transparency = 0.7
+
+    -- Hover Effect (Neumorphic)
+    Button.MouseEnter:Connect(function()
+        Button.BackgroundColor3 = Library.Theme.ElementHover
+        TweenService:Create(Button, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 5)}):Play()
+    end)
+    Button.MouseLeave:Connect(function()
+        Button.BackgroundColor3 = Library.Theme.ElementBackground
+        TweenService:Create(Button, TweenInfo.new(0.2), {Position = UDim2.new(0, 10, 0, 10)}):Play()
+    end)
+
+    -- Click Event
+    Button.MouseButton1Click:Connect(function()
+        if callback then callback() end
+    end)
+
+    return Button
+end
+
+-- Toggle Creation
+function Library:CreateNeumorphicToggle(parent, text, initialState, callback)
+    local ToggleFrame = Instance.new("Frame")
+    ToggleFrame.Name = "ToggleFrame"
+    ToggleFrame.Parent = parent
+    ToggleFrame.BackgroundColor3 = Library.Theme.ElementBackground
+    ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
+    ToggleFrame.Position = UDim2.new(0, 10, 0, 70)
+
+    -- Label for Toggle
+    local Label = Instance.new("TextLabel")
+    Label.Parent = ToggleFrame
+    Label.BackgroundTransparency = 1
+    Label.Size = UDim2.new(0, 100, 1, 0)
+    Label.Position = UDim2.new(0, 0, 0, 0)
+    Label.Font = Enum.Font.SourceSans
+    Label.Text = text
+    Label.TextColor3 = Library.Theme.Text
+    Label.TextSize = 16
+
+    -- Toggle Button (Slider)
+    local ToggleButton = Instance.new("TextButton")
+    ToggleButton.Name = "ToggleButton"
+    ToggleButton.Parent = ToggleFrame
+    ToggleButton.BackgroundColor3 = initialState and Library.Theme.Accent or Library.Theme.ElementShadow
+    ToggleButton.Size = UDim2.new(0, 50, 0, 25)
+    ToggleButton.Position = UDim2.new(1, -60, 0, 8)
+    ToggleButton.Text = ""
+    ToggleButton.TextButtonStyle = Enum.ButtonStyle.RobloxButton
+
+    -- Toggle Animation
+    local ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
+    ToggleTween:Play()
+
+    -- Toggle Event
+    ToggleButton.MouseButton1Click:Connect(function()
+        initialState = not initialState
+        ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
+        ToggleTween:Play()
+
+        if callback then
+            callback(initialState)
+        end
+    end)
+
+    return ToggleButton
+end
 
 -- Create Window
 function Library:CreateWindow(title)
@@ -31,22 +115,16 @@ function Library:CreateWindow(title)
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Library.Theme.Background
     MainFrame.BackgroundTransparency = 0.5
-    MainFrame.Size = UDim2.new(0, 450, 0, 400)
-    MainFrame.Position = UDim2.new(0.5, -225, 0.5, -200)
+    MainFrame.Size = UDim2.new(0, 500, 0, 400)
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
     MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     MainFrame.BorderSizePixel = 0
-
-    -- Blur effect for window background
-    local BlurEffect = Instance.new("BlurEffect")
-    BlurEffect.Parent = MainFrame
-    BlurEffect.Size = 24
 
     -- Topbar Frame
     local Topbar = Instance.new("Frame")
     Topbar.Name = "Topbar"
     Topbar.Parent = MainFrame
     Topbar.BackgroundColor3 = Library.Theme.Topbar
-    Topbar.BackgroundTransparency = 0.3
     Topbar.Size = UDim2.new(1, 0, 0, 40)
     Topbar.BorderSizePixel = 0
 
@@ -64,162 +142,89 @@ function Library:CreateWindow(title)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.TextYAlignment = Enum.TextYAlignment.Center
 
-    -- Close Button
-    local CloseButton = Instance.new("TextButton")
-    CloseButton.Name = "CloseButton"
-    CloseButton.Parent = Topbar
-    CloseButton.BackgroundColor3 = Library.Theme.CloseButton
-    CloseButton.Size = UDim2.new(0, 30, 0, 30)
-    CloseButton.Position = UDim2.new(1, -35, 0, 5)
-    CloseButton.Text = "X"
-    CloseButton.TextColor3 = Library.Theme.Text
-    CloseButton.TextSize = 18
-    CloseButton.Font = Enum.Font.SourceSans
-    CloseButton.TextButtonStyle = Enum.ButtonStyle.RobloxButton
+    -- Tab Button (Switching between content)
+    local TabButtonFrame = Instance.new("Frame")
+    TabButtonFrame.Name = "TabButtonFrame"
+    TabButtonFrame.Parent = MainFrame
+    TabButtonFrame.BackgroundTransparency = 1
+    TabButtonFrame.Size = UDim2.new(1, -20, 0, 50)
+    TabButtonFrame.Position = UDim2.new(0, 10, 0, 40)
 
-    -- Close button hover effect
-    CloseButton.MouseEnter:Connect(function()
-        TweenService:Create(CloseButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 150, 150)}):Play()
-    end)
-    CloseButton.MouseLeave:Connect(function()
-        TweenService:Create(CloseButton, TweenInfo.new(0.1), {BackgroundColor3 = Library.Theme.CloseButton}):Play()
-    end)
+    local TabButton1 = Instance.new("TextButton")
+    TabButton1.Parent = TabButtonFrame
+    TabButton1.Size = UDim2.new(0, 150, 0, 40)
+    TabButton1.Position = UDim2.new(0, 0, 0, 0)
+    TabButton1.Text = "Tab 1"
+    TabButton1.TextColor3 = Library.Theme.Text
+    TabButton1.Font = Enum.Font.SourceSans
+    TabButton1.BackgroundColor3 = Library.Theme.ElementBackground
+    TabButton1.TextSize = 16
 
-    -- Close button functionality
-    CloseButton.MouseButton1Click:Connect(function()
-        ScreenGui:Destroy()
-    end)
+    local TabButton2 = Instance.new("TextButton")
+    TabButton2.Parent = TabButtonFrame
+    TabButton2.Size = UDim2.new(0, 150, 0, 40)
+    TabButton2.Position = UDim2.new(0, 160, 0, 0)
+    TabButton2.Text = "Tab 2"
+    TabButton2.TextColor3 = Library.Theme.Text
+    TabButton2.Font = Enum.Font.SourceSans
+    TabButton2.BackgroundColor3 = Library.Theme.ElementBackground
+    TabButton2.TextSize = 16
 
-    -- Dragging functionality
-    local dragging, dragInput, dragStart, startPos
+    -- Tab Content Area
+    local TabContentFrame = Instance.new("Frame")
+    TabContentFrame.Parent = MainFrame
+    TabContentFrame.Size = UDim2.new(1, -20, 0, 300)
+    TabContentFrame.Position = UDim2.new(0, 10, 0, 90)
 
-    Topbar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = MainFrame.Position
+    -- First Tab Content (Example Buttons, Toggles)
+    local Tab1Content = Instance.new("Frame")
+    Tab1Content.Parent = TabContentFrame
+    Tab1Content.Size = UDim2.new(1, 0, 1, 0)
+    Tab1Content.BackgroundTransparency = 1
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
-                end
-            end)
-        end
-    end)
-
-    Topbar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
-        end
+    -- Add elements to Tab 1
+    Library:CreateNeumorphicButton(Tab1Content, "Button 1", function()
+        print("Button 1 clicked in Tab 1")
     end)
 
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            MainFrame.Position = UDim2.new(
-                startPos.X.Scale,
-                startPos.X.Offset + delta.X,
-                startPos.Y.Scale,
-                startPos.Y.Offset + delta.Y
-            )
-        end
+    Library:CreateNeumorphicToggle(Tab1Content, "Enable Something", false, function(state)
+        print("Feature in Tab 1:", state)
     end)
+
+    -- Second Tab Content (Different Elements)
+    local Tab2Content = Instance.new("Frame")
+    Tab2Content.Parent = TabContentFrame
+    Tab2Content.Size = UDim2.new(1, 0, 1, 0)
+    Tab2Content.BackgroundTransparency = 1
+
+    -- Add elements to Tab 2
+    Library:CreateNeumorphicButton(Tab2Content, "Button 2", function()
+        print("Button 2 clicked in Tab 2")
+    end)
+
+    Library:CreateNeumorphicToggle(Tab2Content, "Enable Another Feature", true, function(state)
+        print("Feature in Tab 2:", state)
+    end)
+
+    -- Switch between Tabs
+    TabButton1.MouseButton1Click:Connect(function()
+        Tab1Content.Visible = true
+        Tab2Content.Visible = false
+    end)
+
+    TabButton2.MouseButton1Click:Connect(function()
+        Tab1Content.Visible = false
+        Tab2Content.Visible = true
+    end)
+
+    -- Initially show Tab 1 content
+    Tab1Content.Visible = true
+    Tab2Content.Visible = false
 
     return {
         ScreenGui = ScreenGui,
         MainFrame = MainFrame
     }
-end
-
--- Button with Gradient, Shadow, and Hover Effect
-function Library:CreateButton(window, text, callback)
-    local Button = Instance.new("TextButton")
-    Button.Name = "Button"
-    Button.Parent = window.MainFrame
-    Button.BackgroundColor3 = Library.Theme.ElementBackground
-    Button.Size = UDim2.new(1, -20, 0, 40)
-    Button.Position = UDim2.new(0, 10, 0, 70)
-    Button.Font = Enum.Font.SourceSans
-    Button.Text = text or "Button"
-    Button.TextColor3 = Library.Theme.Text
-    Button.TextSize = 16
-
-    -- Gradient for button
-    local UIGradient = Instance.new("UIGradient")
-    UIGradient.Parent = Button
-    UIGradient.Color = ColorSequence.new(Library.Theme.ButtonGradientStart, Library.Theme.ButtonGradientEnd)
-
-    -- Shadow for button
-    local Shadow = Instance.new("UIStroke")
-    Shadow.Parent = Button
-    Shadow.Color = Library.Theme.ButtonShadow
-    Shadow.Thickness = 5
-    Shadow.Transparency = 0.8
-
-    -- Hover effect
-    Button.MouseEnter:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {BackgroundTransparency = 0.1}):Play()
-    end)
-
-    Button.MouseLeave:Connect(function()
-        TweenService:Create(Button, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {BackgroundTransparency = 0.3}):Play()
-    end)
-
-    Button.MouseButton1Click:Connect(function()
-        if callback then
-            callback()
-        end
-    end)
-
-    return Button
-end
-
--- Toggle Button with Animation
-function Library:CreateToggle(window, text, initialState, callback)
-    local ToggleFrame = Instance.new("Frame")
-    ToggleFrame.Name = "ToggleFrame"
-    ToggleFrame.Parent = window.MainFrame
-    ToggleFrame.BackgroundColor3 = Library.Theme.ElementBackground
-    ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
-    ToggleFrame.Position = UDim2.new(0, 10, 0, 120)
-
-    -- Toggle label
-    local ToggleLabel = Instance.new("TextLabel")
-    ToggleLabel.Parent = ToggleFrame
-    ToggleLabel.BackgroundTransparency = 1
-    ToggleLabel.Size = UDim2.new(0, 100, 1, 0)
-    ToggleLabel.Position = UDim2.new(0, 0, 0, 0)
-    ToggleLabel.Font = Enum.Font.SourceSans
-    ToggleLabel.Text = text
-    ToggleLabel.TextColor3 = Library.Theme.Text
-    ToggleLabel.TextSize = 16
-
-    -- Toggle button
-    local ToggleButton = Instance.new("TextButton")
-    ToggleButton.Name = "ToggleButton"
-    ToggleButton.Parent = ToggleFrame
-    ToggleButton.BackgroundColor3 = initialState and Library.Theme.ToggleOn or Library.Theme.ToggleOff
-    ToggleButton.Size = UDim2.new(0, 50, 0, 25)
-    ToggleButton.Position = UDim2.new(1, -60, 0, 8)
-    ToggleButton.Text = ""
-    ToggleButton.TextButtonStyle = Enum.ButtonStyle.RobloxButton
-
-    -- Toggle animation
-    local ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
-    ToggleTween:Play()
-
-    -- Toggle button functionality
-    ToggleButton.MouseButton1Click:Connect(function()
-        initialState = not initialState
-        ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
-        ToggleTween:Play()
-
-        if callback then
-            callback(initialState)
-        end
-    end)
-
-    return ToggleButton
 end
 
 return Library
