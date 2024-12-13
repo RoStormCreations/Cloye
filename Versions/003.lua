@@ -6,20 +6,21 @@ local UserInputService = game:GetService("UserInputService")
 
 -- Variables
 Library.Theme = {
-    Background = Color3.fromRGB(30, 30, 30),
-    Topbar = Color3.fromRGB(45, 45, 45),
-    ElementBackground = Color3.fromRGB(40, 40, 40),
-    ElementHover = Color3.fromRGB(60, 60, 60),
-    Text = Color3.fromRGB(255, 255, 255),
-    Accent = Color3.fromRGB(70, 130, 180),
-    CloseButton = Color3.fromRGB(255, 100, 100),
-    ToggleOn = Color3.fromRGB(70, 130, 180), -- Accent color for the 'on' state
-    ToggleOff = Color3.fromRGB(100, 100, 100), -- Dimmed color for the 'off' state
-    ButtonGradientStart = Color3.fromRGB(100, 100, 255),
-    ButtonGradientEnd = Color3.fromRGB(70, 130, 180),
-    ButtonShadow = Color3.fromRGB(0, 0, 0)
+    Background = Color3.fromRGB(30, 30, 30), -- Dark background
+    Topbar = Color3.fromRGB(40, 40, 40), -- Darker top bar for contrast
+    ElementBackground = Color3.fromRGB(45, 45, 45), -- Dark grey element background
+    ElementHover = Color3.fromRGB(60, 60, 60), -- Hover effect for elements
+    Text = Color3.fromRGB(255, 255, 255), -- White text
+    Accent = Color3.fromRGB(70, 130, 180), -- Blue accent color
+    CloseButton = Color3.fromRGB(255, 100, 100), -- Red close button
+    ButtonGradientStart = Color3.fromRGB(100, 100, 255), -- Button gradient start
+    ButtonGradientEnd = Color3.fromRGB(70, 130, 180), -- Button gradient end
+    ButtonShadow = Color3.fromRGB(0, 0, 0), -- Button shadow
+    ToggleOn = Color3.fromRGB(70, 130, 180), -- Accent color for toggled state
+    ToggleOff = Color3.fromRGB(100, 100, 100), -- Dimmed color for untoggled state
 }
 
+-- Create Window
 function Library:CreateWindow(title)
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "CustomUILibrary"
@@ -29,25 +30,27 @@ function Library:CreateWindow(title)
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
     MainFrame.BackgroundColor3 = Library.Theme.Background
-    MainFrame.BackgroundTransparency = 0.5 -- Adjust transparency for blurred glass effect
+    MainFrame.BackgroundTransparency = 0.5
     MainFrame.Size = UDim2.new(0, 450, 0, 400)
     MainFrame.Position = UDim2.new(0.5, -225, 0.5, -200)
     MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
     MainFrame.BorderSizePixel = 0
-    MainFrame.ClipsDescendants = true -- Ensure the content doesn't overflow
 
+    -- Blur effect for window background
     local BlurEffect = Instance.new("BlurEffect")
     BlurEffect.Parent = MainFrame
-    BlurEffect.Size = 24 -- Adjust the blur intensity
+    BlurEffect.Size = 24
 
+    -- Topbar Frame
     local Topbar = Instance.new("Frame")
     Topbar.Name = "Topbar"
     Topbar.Parent = MainFrame
     Topbar.BackgroundColor3 = Library.Theme.Topbar
-    Topbar.BackgroundTransparency = 0.3 -- Partial transparency for glass effect
+    Topbar.BackgroundTransparency = 0.3
     Topbar.Size = UDim2.new(1, 0, 0, 40)
     Topbar.BorderSizePixel = 0
 
+    -- Title Text
     local Title = Instance.new("TextLabel")
     Title.Name = "Title"
     Title.Parent = Topbar
@@ -61,6 +64,7 @@ function Library:CreateWindow(title)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.TextYAlignment = Enum.TextYAlignment.Center
 
+    -- Close Button
     local CloseButton = Instance.new("TextButton")
     CloseButton.Name = "CloseButton"
     CloseButton.Parent = Topbar
@@ -73,8 +77,7 @@ function Library:CreateWindow(title)
     CloseButton.Font = Enum.Font.SourceSans
     CloseButton.TextButtonStyle = Enum.ButtonStyle.RobloxButton
 
-    -- Close button animation
-    local CloseButtonTween = TweenService:Create(CloseButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {BackgroundColor3 = Library.Theme.CloseButton:lerp(Color3.fromRGB(255, 50, 50), 0.5)})
+    -- Close button hover effect
     CloseButton.MouseEnter:Connect(function()
         TweenService:Create(CloseButton, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(255, 150, 150)}):Play()
     end)
@@ -82,11 +85,12 @@ function Library:CreateWindow(title)
         TweenService:Create(CloseButton, TweenInfo.new(0.1), {BackgroundColor3 = Library.Theme.CloseButton}):Play()
     end)
 
+    -- Close button functionality
     CloseButton.MouseButton1Click:Connect(function()
         ScreenGui:Destroy()
     end)
 
-    -- Enable dragging for the window
+    -- Dragging functionality
     local dragging, dragInput, dragStart, startPos
 
     Topbar.InputBegan:Connect(function(input)
@@ -127,7 +131,7 @@ function Library:CreateWindow(title)
     }
 end
 
--- Button with Gradient and Shadow
+-- Button with Gradient, Shadow, and Hover Effect
 function Library:CreateButton(window, text, callback)
     local Button = Instance.new("TextButton")
     Button.Name = "Button"
@@ -140,12 +144,12 @@ function Library:CreateButton(window, text, callback)
     Button.TextColor3 = Library.Theme.Text
     Button.TextSize = 16
 
-    -- Gradient Background
+    -- Gradient for button
     local UIGradient = Instance.new("UIGradient")
     UIGradient.Parent = Button
     UIGradient.Color = ColorSequence.new(Library.Theme.ButtonGradientStart, Library.Theme.ButtonGradientEnd)
 
-    -- Button Shadow
+    -- Shadow for button
     local Shadow = Instance.new("UIStroke")
     Shadow.Parent = Button
     Shadow.Color = Library.Theme.ButtonShadow
@@ -170,7 +174,7 @@ function Library:CreateButton(window, text, callback)
     return Button
 end
 
--- Toggle Button with Enhanced Effects
+-- Toggle Button with Animation
 function Library:CreateToggle(window, text, initialState, callback)
     local ToggleFrame = Instance.new("Frame")
     ToggleFrame.Name = "ToggleFrame"
@@ -178,7 +182,8 @@ function Library:CreateToggle(window, text, initialState, callback)
     ToggleFrame.BackgroundColor3 = Library.Theme.ElementBackground
     ToggleFrame.Size = UDim2.new(1, -20, 0, 40)
     ToggleFrame.Position = UDim2.new(0, 10, 0, 120)
-    
+
+    -- Toggle label
     local ToggleLabel = Instance.new("TextLabel")
     ToggleLabel.Parent = ToggleFrame
     ToggleLabel.BackgroundTransparency = 1
@@ -189,6 +194,7 @@ function Library:CreateToggle(window, text, initialState, callback)
     ToggleLabel.TextColor3 = Library.Theme.Text
     ToggleLabel.TextSize = 16
 
+    -- Toggle button
     local ToggleButton = Instance.new("TextButton")
     ToggleButton.Name = "ToggleButton"
     ToggleButton.Parent = ToggleFrame
@@ -198,10 +204,11 @@ function Library:CreateToggle(window, text, initialState, callback)
     ToggleButton.Text = ""
     ToggleButton.TextButtonStyle = Enum.ButtonStyle.RobloxButton
 
-    -- Toggle Button Animation
+    -- Toggle animation
     local ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
     ToggleTween:Play()
 
+    -- Toggle button functionality
     ToggleButton.MouseButton1Click:Connect(function()
         initialState = not initialState
         ToggleTween = TweenService:Create(ToggleButton, TweenInfo.new(0.2, Enum.EasingStyle.Sine), {Position = initialState and UDim2.new(1, -60, 0, 8) or UDim2.new(1, -110, 0, 8)})
